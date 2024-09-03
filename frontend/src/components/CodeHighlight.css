@@ -1,0 +1,9 @@
+.code-line {
+  white-space: pre; /* Maintain whitespace formatting */
+}
+
+.code-line.highlight {
+  color: rgb(13, 255, 0); /* Highlight color */
+  font-size: 18px;
+  font-weight: bold;
+}

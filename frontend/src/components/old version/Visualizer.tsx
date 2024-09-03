@@ -126,6 +126,7 @@ const SortComponent: React.FC = () => {
       setStatus(`Pass ${i + 1}: Comparing elements...`)
       for (let j = 0; j < n - 1 - i; j++) {
         setHighlight([j, j + 1])
+        console.log({ highlight, j, j1: j + 1 })
         if (arr[j] > arr[j + 1]) {
           // Swap elements
           const temp = arr[j]
@@ -135,6 +136,7 @@ const SortComponent: React.FC = () => {
           // Update the state and animate the change
           setData([...arr])
           await new Promise((resolve) => setTimeout(resolve, 500)) // Wait 500ms for each swap
+          setHighlight([])
         }
         setHighlight([])
       }
