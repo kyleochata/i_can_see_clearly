@@ -7,13 +7,15 @@ const SortComponent: React.FC = () => {
   const [sorting, setSorting] = useState<boolean>(false)
   const [highlight, setHighlight] = useState<number[]>([]) // Indices to highlight
   const [status, setStatus] = useState<string>('')
-  const [iteration, setIteration] = useState<number>(0) // Total iterations
+  //const [iteration, setIteration] = useState<number>(0) // Total iterations
   const [currentLine, setCurrentLine] = useState<number>(0) // Line of code being highlighted
   const [states, setStates] = useState<number[][]>([]) // States array; contains snapshot of each step of the sort
   const [currentStateIndex, setCurrentStateIndex] = useState<number>(0) // Current state index
   const [currentIteration, setCurrentIteration] = useState<number>(0) // Current iteration
   const [comment, setComment] = useState<string>('') // Step-by-step comment
   const [comments, setComments] = useState<string[]>([]) // Comments array
+  const [compareIndices, setCompareIndices] = useState<number[][]>([])
+
   const svgRef = useRef<SVGSVGElement | null>(null)
   const codeRef = useRef<HTMLPreElement | null>(null)
 
@@ -33,88 +35,34 @@ const SortComponent: React.FC = () => {
 
       const result = await response.json()
 
-      const { states, iterationCount, comments } = result
-
+      const { states, comments, comparedIndex } = result
+      console.log({ comparedIndex })
       setStates(states)
-      setIteration(iterationCount)
+      //setIteration(iterationCount)
       setComments(comments)
+      setCompareIndices(comparedIndex)
       setStatus(comments[0])
     } catch (error) {
       console.error('Error fetching sorting states:', error)
     }
   }
 
-  //TODO: We have a comments object in the response, so we can use that to generate comments. We just need to figure out how to integrate it
-  const generateComment = (stateIndex: number) => {
-    if (stateIndex < states.length - 1) {
-      // const currentState = states[stateIndex]
-      // const nextState = states[stateIndex + 1]
-      // console.log({ currentState, nextState })
-      // for (let i = 0; i < currentState.length - 1; i++) {
-      //   if (currentState[i] > currentState[i + 1]) {
-      //     return `Comparing ${currentState[i]} and ${
-      //       currentState[i + 1]
-      //     }... Swap!`
-      //   } else {
-      //     if (currentState[i] !== nextState[i]) {
-      //       return `Comparing ${currentState[i]} and ${
-      //         currentState[i + 1]
-      //       }... No Swap.`
-      //     }
-      //   }
-      // }
-      return comments[stateIndex]
-    }
-    return 'Sorting Completed.'
-  }
-
-  // const animateStep = async () => {
-  //   if (currentStateIndex < states.length) {
-  //     setData(states[currentStateIndex])
-  //     setHighlight([]) // Clear highlights
-  //     setCurrentLine(currentStateIndex + 1) // ArrowPointer line
-  //     setComment(generateComment(currentStateIndex)) // Update the comment
-
-  //     await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait 500ms for each step
-  //     setCurrentStateIndex((prevIndex) => prevIndex + 1)
-  //     setCurrentIteration((prevIteration) => prevIteration + 1) // Increment current iteration
-  //   } else {
-  //     setStatus('Sorting completed!')
-  //     setSorting(false)
-  //   }
-  // }
   const animateStep = async () => {
     if (currentStateIndex < states.length) {
       const currentState = states[currentStateIndex]
-      const nextState =
-        currentStateIndex < states.length - 1
-          ? states[currentStateIndex + 1]
-          : currentState
 
-      // Find the indices that are different between the current and next state
-      const compareIndices = []
-      for (let i = 0; i < currentState.length - 1; i++) {
-        if (
-          currentState[i] !== nextState[i] ||
-          currentState[i + 1] !== nextState[i + 1]
-        ) {
-          compareIndices.push(i, i + 1)
-        }
-      }
+      // Use compareIndices to highlight the boxes being compared
+      const currentHighlightIndices = compareIndices[currentStateIndex]
+      setHighlight(currentHighlightIndices)
 
-      // Remove duplicates and sort indices
-      const uniqueIndices = Array.from(new Set(compareIndices)).sort(
-        (a, b) => a - b
-      )
-
-      setHighlight(uniqueIndices) // Update highlight with unique indices
       setData(currentState)
       setCurrentLine(currentStateIndex + 1)
       setComment(comments[currentStateIndex])
 
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait 1000ms for each step
+      //Timer for waiting between each step
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       setCurrentStateIndex((prevIndex) => prevIndex + 1)
-      setCurrentIteration((prevIteration) => prevIteration + 1) // Increment current iteration
+      setCurrentIteration((prevIteration) => prevIteration + 1)
     } else {
       setStatus('Sorting completed!')
       setSorting(false)
@@ -126,7 +74,7 @@ const SortComponent: React.FC = () => {
     setCurrentStateIndex(0)
     setSorting(false)
     setStatus('')
-    setIteration(0)
+    //setIteration(0)
     setCurrentIteration(0)
     setCurrentLine(0)
     setHighlight([])
@@ -137,7 +85,7 @@ const SortComponent: React.FC = () => {
     if (currentStateIndex < states.length) {
       const timer = setTimeout(() => {
         animateStep()
-      }, 500) // Adjust timing here as needed
+      }, 1000)
 
       return () => clearTimeout(timer) // Clean up timer on unmount or when state changes
     }
@@ -148,48 +96,6 @@ const SortComponent: React.FC = () => {
       const svg = d3.select(svgRef.current)
       svg.selectAll('*').remove() // Clear previous SVG content
 
-      // const width = 500
-      // const height = 100
-      // const margin = { top: 20, right: 20, bottom: 20, left: 20 }
-
-      // const xScale = d3
-      //   .scaleBand()
-      //   .domain(data.map((_, i) => i.toString()))
-      //   .range([margin.left, width - margin.right])
-      //   .padding(0.1)
-
-      // const yScale = d3
-      //   .scaleLinear()
-      //   .domain([0, d3.max(data) || 0])
-      //   .nice()
-      //   .range([height - margin.bottom, margin.top])
-
-      // svg
-      //   .append('g')
-      //   .selectAll('rect')
-      //   .data(data)
-      //   .join('rect')
-      //   .attr('x', (_, i) => xScale(i.toString())!)
-      //   .attr('y', (d) => yScale(d))
-      //   .attr('width', xScale.bandwidth())
-      //   .attr('height', (d) => height - margin.bottom - yScale(d))
-      //   .attr('fill', (d, i) =>
-      //     highlight.includes(i) ? 'orange' : 'steelblue'
-      //   )
-      //   .append('title')
-      //   .text((d) => d.toString())
-
-      // svg
-      //   .append('g')
-      //   .selectAll('text')
-      //   .data(data)
-      //   .join('text')
-      //   .attr('x', (_, i) => xScale(i.toString())! + xScale.bandwidth() / 2)
-      //   .attr('y', height / 2)
-      //   .attr('dy', '.35em')
-      //   .attr('text-anchor', 'middle')
-      //   .attr('fill', 'white')
-      //   .text((d) => d.toString())
       // Define scales and margins
       const width = 500
       const height = 100
@@ -278,10 +184,6 @@ const SortComponent: React.FC = () => {
               {`}`}
             </code>
           </pre>
-          <div
-            className="arrow-pointer"
-            style={{ top: `${(currentLine - 1) * 24}px` }}
-          ></div>
         </div>
       </div>
       <svg ref={svgRef} width={500} height={100}></svg>
@@ -295,27 +197,8 @@ const SortComponent: React.FC = () => {
       </button>
       <button onClick={resetVisualization}>Reset</button>
       <div>
-        Iteration: {currentIteration}/{iteration}
-      </div>
-      <div>
         Current Step: {currentStateIndex + 1}/{states.length}
       </div>
-      <style>{`
-        .code-line.highlight {
-          background-color: yellow;
-        }
-        .arrow-pointer {
-          position: absolute;
-          width: 0;
-          height: 0;
-          border-left: 10px solid transparent;
-          border-right: 10px solid transparent;
-          border-bottom: 10px solid red;
-          top: 0;
-          left: 0;
-          transform: translateX(-50%);
-        }
-      `}</style>
     </div>
   )
 }

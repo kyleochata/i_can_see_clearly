@@ -12,7 +12,7 @@ type SortRequest struct {
 }
 
 type SortingAlgorithm interface {
-	Sort(data []int) ([][]int, int, []string) // Updated to return intermediate states & loop iteration counter
+	Sort(data []int) ([][]int, int, []string, [][]int, [][]int) // Added lineNumbers return value
 }
 
 func SortHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,19 +41,24 @@ func SortHandler(w http.ResponseWriter, r *http.Request) {
 	var states [][]int
 	var iterationCount int
 	var comments []string
+	var comparedIndexArr [][]int
+	var lineNumbers [][]int
 	switch a := algo.(type) {
 	case BubbleSort:
-		states, iterationCount, comments = a.Sort(req.Data)
+		states, iterationCount, comments, comparedIndexArr, lineNumbers = a.Sort(req.Data)
 	//case QuickSort:
 	//Cstates = a.Sort(req.Data)
 	default:
 		http.Error(w, "Unknown sorting algorithm", http.StatusBadRequest)
 		return
 	}
+
 	response := map[string]interface{}{
 		"states":         states,
 		"iterationCount": iterationCount,
 		"comments":       comments,
+		"comparedIndex":  comparedIndexArr,
+		"lineNumbers":    lineNumbers, // Include lineNumbers in the response
 	}
 
 	err = json.NewEncoder(w).Encode(response)
