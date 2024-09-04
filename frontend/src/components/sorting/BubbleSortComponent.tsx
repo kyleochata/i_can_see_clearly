@@ -18,6 +18,7 @@ const BubbleSortComponent: React.FC = () => {
   const [comments, setComments] = useState<string[]>([])
   const [compareIndices, setCompareIndices] = useState<number[][]>([])
   const [lineNumbers, setLineNumbers] = useState<number[][]>([]) // State to hold line numbers
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
   const fetchSortingStates = async () => {
     setSorting(true)
@@ -25,7 +26,7 @@ const BubbleSortComponent: React.FC = () => {
     setCurrentLine([])
 
     try {
-      const response = await fetch('http://localhost:8080/api/sort', {
+      const response = await fetch(`${API_BASE_URL}/sort`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ algorithm: 'bubble', data: originalData }),
