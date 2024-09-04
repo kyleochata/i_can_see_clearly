@@ -32,7 +32,7 @@ export const BubbleSortD3 = (
     .attr('width', xScale.bandwidth())
     .attr('height', height - margin.bottom - margin.top)
     .attr('fill', (d, i) => (highlight.includes(i) ? 'orange' : 'steelblue')) // Highlight condition
-    .attr('stroke', 'black') // Ensure the boxes have a border
+    .attr('stroke', 'black')
     .attr('stroke-width', 1)
     .append('title')
     .text((d) => d.toString())
