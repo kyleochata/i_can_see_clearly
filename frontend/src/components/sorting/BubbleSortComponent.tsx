@@ -10,8 +10,10 @@ const BubbleSortComponent: React.FC = () => {
   const [highlight, setHighlight] = useState<number[]>([])
   const [currentLine, setCurrentLine] = useState<number[]>([]) // Array to hold current lines to highlight
   const [states, setStates] = useState<number[][]>([])
-  const [currentStateIndex, setCurrentStateIndex] = useState<number>(0)
-  const [comment, setComment] = useState<string>('')
+  const [currentStateIndex, setCurrentStateIndex] = useState<number>(-1)
+  const [comment, setComment] = useState<string>(
+    'Click to watch Bubble Sort in action!'
+  )
   const [comments, setComments] = useState<string[]>([])
   const [compareIndices, setCompareIndices] = useState<number[][]>([])
   const [lineNumbers, setLineNumbers] = useState<number[][]>([]) // State to hold line numbers
@@ -66,6 +68,9 @@ const BubbleSortComponent: React.FC = () => {
       setCurrentStateIndex((prevIndex) => prevIndex + 1)
     } else {
       setSorting(false)
+      setComment('Sorting complete!')
+      setHighlight([])
+      console.log({ comment })
     }
   }
 
@@ -79,7 +84,10 @@ const BubbleSortComponent: React.FC = () => {
   }
 
   useEffect(() => {
-    if (currentStateIndex < states.length) {
+    if (currentStateIndex === -1) {
+      return
+    }
+    if (currentStateIndex <= states.length) {
       const timer = setTimeout(() => {
         animateStep()
       }, 1000)
@@ -99,6 +107,15 @@ func bubbleSort(arr []int) {
     }
   }
 }`
+  const getCurrentStep = (currentStateIndex: number, totalStates: number) => {
+    if (currentStateIndex === -1) {
+      return `0 / ${totalStates}`
+    } else if (currentStateIndex > totalStates) {
+      return `${currentStateIndex - 1} / ${totalStates}`
+    } else {
+      return `${currentStateIndex} / ${totalStates}`
+    }
+  }
 
   return (
     <div style={{ height: '100vh' }}>
@@ -135,7 +152,7 @@ func bubbleSort(arr []int) {
         isSorting={sorting}
       />
       <div>
-        Current Step: {currentStateIndex + 1}/{states.length}
+        Current Step: {getCurrentStep(currentStateIndex, states.length)}
       </div>
     </div>
   )
