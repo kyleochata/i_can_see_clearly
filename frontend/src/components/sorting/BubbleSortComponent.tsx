@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Visualizer from '../Visualization'
 import CodeDisplay from '../CodeHighlight'
 import Controls from '../Controls'
+import { BubbleSortD3 } from './BubbleSortD3'
 
 const BubbleSortComponent: React.FC = () => {
   const [data, setData] = useState<number[]>([5, 2, 9, 1, 5, 6])
@@ -64,7 +65,7 @@ const BubbleSortComponent: React.FC = () => {
 
       setComment(comments[currentStateIndex])
 
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       setCurrentStateIndex((prevIndex) => prevIndex + 1)
     } else {
       setSorting(false)
@@ -124,12 +125,12 @@ func bubbleSort(arr []int) {
       <h3>Original Data</h3>
       <Visualizer
         data={originalData}
-        highlight={[]}
         d3Props={{
           width: 500,
           height: 100,
           margin: { top: 20, right: 20, bottom: 20, left: 20 },
         }}
+        algorithm={BubbleSortD3}
       />
       <h3>Sorting in Action!</h3>
       <Visualizer
@@ -140,6 +141,7 @@ func bubbleSort(arr []int) {
           height: 100,
           margin: { top: 20, right: 20, bottom: 20, left: 20 },
         }}
+        algorithm={BubbleSortD3}
       />
       <div style={{ marginTop: '20px' }}>
         <p style={{ fontSize: '18px', fontWeight: 'bold', color: 'white' }}>

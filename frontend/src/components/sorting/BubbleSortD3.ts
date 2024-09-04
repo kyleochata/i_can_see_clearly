@@ -2,7 +2,8 @@ import * as d3 from 'd3'
 
 export const BubbleSortD3 = (
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-  data: number[]
+  data: number[],
+  highlight: number[]
 ) => {
   const width = +svg.attr('width')
   const height = +svg.attr('height')
@@ -21,7 +22,7 @@ export const BubbleSortD3 = (
     .range([height - margin.bottom, margin.top])
 
   // Draw boxes
-  svg
+  const rects = svg
     .append('g')
     .selectAll('rect')
     .data(data)
@@ -30,7 +31,9 @@ export const BubbleSortD3 = (
     .attr('y', margin.top)
     .attr('width', xScale.bandwidth())
     .attr('height', height - margin.bottom - margin.top)
-    .attr('fill', 'steelblue')
+    .attr('fill', (d, i) => (highlight.includes(i) ? 'orange' : 'steelblue')) // Highlight condition
+    .attr('stroke', 'black') // Ensure the boxes have a border
+    .attr('stroke-width', 1)
     .append('title')
     .text((d) => d.toString())
 
